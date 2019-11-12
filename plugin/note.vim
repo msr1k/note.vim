@@ -39,7 +39,13 @@ function! s:Vsplit()
 endfunction
 
 function! s:Back() abort
-  silent execute "wincmd p"
+  let m = bufwinnr(s:filename)
+  let n = bufwinnr(s:target_file)
+  if m == n
+    silent execute ':e ' . s:target_file
+  else
+    silent execute n . 'wincmd w'
+  endif
 endfunction
 
 command! Note  :call s:Open()
