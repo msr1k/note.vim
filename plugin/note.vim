@@ -44,7 +44,11 @@ function! s:Back() abort
   if m == n
     silent execute ':e ' . s:target_file
   else
-    silent execute n . 'wincmd w'
+    if n == -1
+      silent execute ':e ' . s:target_file
+    else
+      silent execute n . 'wincmd w'
+    endif
   endif
 endfunction
 
