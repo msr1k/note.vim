@@ -10,12 +10,13 @@ if exists('g:loaded_note_vim')
 endif
 let g:loaded_note_vim = 1
 
-let s:save_cpo = &cpo
-set cpo&vim
+let s:save_cpo = &cpoptions
+set cpoptions&vim
 
-let s:filename = ".note.md"
+let s:filename = '.note.md'
 
 function! s:Opener(cmd) abort
+  let s:win_id = win_getid()
   let s:target_file = expand('%')
   let num = bufwinnr(s:filename)
   if num != -1
@@ -39,15 +40,20 @@ function! s:Vsplit()
 endfunction
 
 function! s:Back() abort
-  let m = bufwinnr(s:filename)
-  let n = bufwinnr(s:target_file)
-  if m == n
+  if win_getid() == s:win_id
     silent execute ':e ' . s:target_file
   else
-    if n == -1
-      silent execute ':e ' . s:target_file
+    let target = 0
+    let total = winnr('$')
+    for n in range(1, total)
+      if win_getid(n) == s:win_id
+        let target = n
+      endif
+    endfor
+    if target != 0
+      :exe target.'wincmd w'
     else
-      silent execute n . 'wincmd w'
+      silent execute ':e ' . s:target_file
     endif
   endif
 endfunction
@@ -57,7 +63,7 @@ command! SNote :call s:Split()
 command! VNote :call s:Vsplit()
 command! Eton  :call s:Back()
 
-let &cpo = s:save_cpo
+let &cpoptions = s:save_cpo
 unlet s:save_cpo
 
 
