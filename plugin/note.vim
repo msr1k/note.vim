@@ -25,8 +25,34 @@ function! s:GetFileName() abort
   end
 endfunction
 
-function! s:SpecifyNoteName(name)
+function! s:SpecifyNoteName(name) abort
   let s:name = a:name
+endfunction
+
+function! s:CompName(lead, line, pos) abort
+  echomsg a:line
+
+  let filelist = glob(".*", 0, 1)
+  let l = []
+  for f in filelist
+    let match_result = matchlist(f, '\.note\.\(\w\+\)\' . s:ext)
+    if len(match_result) != 0
+      call add(l, match_result[1])
+    endif
+  endfor
+
+  let m = matchlist(a:line, '\s\+\(\w\+\)\?$')
+  if len(m) != 0
+    let c = []
+    for i in l
+      if i =~# '^' . m[1]
+        call add(c, i)
+      endif
+    endfor
+    return c
+  else
+    return l
+  endif
 endfunction
 
 function! s:Opener(cmd) abort
@@ -72,7 +98,7 @@ function! s:Back() abort
   endif
 endfunction
 
-command! -nargs=1 CNote  :call s:SpecifyNoteName(<f-args>)      " Choose note name to use
+command! -nargs=1 -complete=customlist,s:CompName CNote  :call s:SpecifyNoteName(<f-args>)      " Choose note name to use
 command! Note  :call s:Open()
 command! SNote :call s:Split()
 command! VNote :call s:Vsplit()
