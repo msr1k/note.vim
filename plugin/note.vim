@@ -13,16 +13,64 @@ let g:loaded_note_vim = 1
 let s:save_cpo = &cpoptions
 set cpoptions&vim
 
-let s:filename = '.note.md'
+let s:basename = '.note'
+let s:ext = '.md'
+let s:name = ''
+
+function! s:GetFileName() abort
+  if s:name == ''
+    return s:basename . s:ext
+  else
+    return s:basename . '.' . s:name . s:ext
+  end
+endfunction
+
+function! s:EchoFileName() abort
+  echo "[Note.vim] Current note: " . s:GetFileName()
+endfunction
+
+function! s:SpecifyNoteName(...) abort
+  if a:0 >= 1
+    let s:name = a:1
+  else
+    let s:name = ''
+  end
+endfunction
+
+function! s:CompName(lead, line, pos) abort
+  echomsg a:line
+
+  let filelist = glob(".*", 0, 1)
+  let l = []
+  for f in filelist
+    let match_result = matchlist(f, '\.note\.\(\w\+\)\' . s:ext)
+    if len(match_result) != 0
+      call add(l, match_result[1])
+    endif
+  endfor
+
+  let m = matchlist(a:line, '\s\+\(\w\+\)\?$')
+  if len(m) != 0
+    let c = []
+    for i in l
+      if i =~# '^' . m[1]
+        call add(c, i)
+      endif
+    endfor
+    return c
+  else
+    return l
+  endif
+endfunction
 
 function! s:Opener(cmd) abort
   let s:win_id = win_getid()
   let s:target_file = expand('%')
-  let num = bufwinnr(s:filename)
+  let num = bufwinnr(s:GetFileName())
   if num != -1
     silent execute num . 'wincmd w'
   else
-    let cmd = a:cmd . ' ' . s:filename
+    let cmd = a:cmd . ' ' . s:GetFileName()
     silent execute cmd
   endif
 endfunction
@@ -58,6 +106,8 @@ function! s:Back() abort
   endif
 endfunction
 
+command! -nargs=? -complete=customlist,s:CompName CNote  :call s:SpecifyNoteName(<f-args>)      " Choose note name to use
+command! FNote :call s:EchoFileName()  " Filename of current note
 command! Note  :call s:Open()
 command! SNote :call s:Split()
 command! VNote :call s:Vsplit()
