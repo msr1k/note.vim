@@ -13,16 +13,26 @@ let g:loaded_note_vim = 1
 let s:save_cpo = &cpoptions
 set cpoptions&vim
 
-let s:filename = '.note.md'
+let s:basename = '.note'
+let s:ext = '.md'
+let s:name = ''
+
+function! s:GetFileName() abort
+  if s:name == ''
+    return s:basename . s:ext
+  else
+    return s:basename . '.' . s:name . s:ext
+  end
+endfunction
 
 function! s:Opener(cmd) abort
   let s:win_id = win_getid()
   let s:target_file = expand('%')
-  let num = bufwinnr(s:filename)
+  let num = bufwinnr(s:GetFileName())
   if num != -1
     silent execute num . 'wincmd w'
   else
-    let cmd = a:cmd . ' ' . s:filename
+    let cmd = a:cmd . ' ' . s:GetFileName()
     silent execute cmd
   endif
 endfunction
