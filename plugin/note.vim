@@ -25,8 +25,16 @@ function! s:GetFileName() abort
   end
 endfunction
 
-function! s:SpecifyNoteName(name) abort
-  let s:name = a:name
+function! s:EchoFileName() abort
+  echo "[Note.vim] Current note: " . s:GetFileName()
+endfunction
+
+function! s:SpecifyNoteName(...) abort
+  if a:0 >= 1
+    let s:name = a:1
+  else
+    let s:name = ''
+  end
 endfunction
 
 function! s:CompName(lead, line, pos) abort
@@ -98,7 +106,8 @@ function! s:Back() abort
   endif
 endfunction
 
-command! -nargs=1 -complete=customlist,s:CompName CNote  :call s:SpecifyNoteName(<f-args>)      " Choose note name to use
+command! -nargs=? -complete=customlist,s:CompName CNote  :call s:SpecifyNoteName(<f-args>)      " Choose note name to use
+command! FNote :call s:EchoFileName()  " Filename of current note
 command! Note  :call s:Open()
 command! SNote :call s:Split()
 command! VNote :call s:Vsplit()
