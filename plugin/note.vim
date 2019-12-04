@@ -25,6 +25,10 @@ function! s:GetFileName() abort
   end
 endfunction
 
+function! s:SpecifyNoteName(name)
+  let s:name = a:name
+endfunction
+
 function! s:Opener(cmd) abort
   let s:win_id = win_getid()
   let s:target_file = expand('%')
@@ -68,6 +72,7 @@ function! s:Back() abort
   endif
 endfunction
 
+command! -nargs=1 CNote  :call s:SpecifyNoteName(<f-args>)      " Choose note name to use
 command! Note  :call s:Open()
 command! SNote :call s:Split()
 command! VNote :call s:Vsplit()
