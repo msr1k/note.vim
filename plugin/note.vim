@@ -18,7 +18,7 @@ let s:ext = '.md'
 let s:name = ''
 
 function! s:GetFileName() abort
-  if s:name == ''
+  if s:name ==? ''
     return s:basename . s:ext
   else
     return s:basename . '.' . s:name . s:ext
@@ -26,12 +26,16 @@ function! s:GetFileName() abort
 endfunction
 
 function! s:EchoFileName() abort
-  echo "[Note.vim] Current note: " . s:GetFileName()
+  echo '[Note.vim] Current note: ' . s:GetFileName()
 endfunction
 
 function! s:SpecifyNoteName(...) abort
   if a:0 >= 1
-    let s:name = a:1
+    if a:1 =~? '^\w\+$'
+      let s:name = a:1
+    else
+      echoerr '[Note.vim] ERROR: invalid name specified. (name should match "^\w\+$")'
+    end
   else
     let s:name = ''
   end
@@ -40,7 +44,7 @@ endfunction
 function! s:CompName(lead, line, pos) abort
   echomsg a:line
 
-  let filelist = glob(".*", 0, 1)
+  let filelist = glob('.*', 0, 1)
   let l = []
   for f in filelist
     let match_result = matchlist(f, '\.note\.\(\w\+\)\' . s:ext)
